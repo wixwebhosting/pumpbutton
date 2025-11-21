@@ -421,6 +421,36 @@
             cursor: not-allowed;
         }
 
+        .x-logo {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 9999;
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+        }
+
+        .x-logo:hover {
+            transform: scale(1.1);
+            background: rgba(0, 0, 0, 0.95);
+            border-color: #00ff88;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+
+        .x-logo svg {
+            width: 30px;
+            height: 30px;
+            fill: #fff;
+        }
+
         @media (max-width: 768px) {
             h1 { font-size: 2em; }
             .pump-button { width: 250px; height: 250px; font-size: 2em; }
@@ -428,6 +458,8 @@
             .stats { gap: 20px; }
             .modal-content { padding: 30px 40px; }
             .modal-content h2 { font-size: 1.8em; }
+            .x-logo { width: 40px; height: 40px; top: 15px; left: 15px; }
+            .x-logo svg { width: 24px; height: 24px; }
         }
     </style>
 </head>
@@ -448,6 +480,12 @@
             <button id="startPumpingBtn" disabled>START PUMPING</button>
         </div>
     </div>
+
+    <a href="https://x.com/thepumpbutton" target="_blank" rel="noopener noreferrer" class="x-logo">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+        </svg>
+    </a>
 
     <div class="particles" id="particles"></div>
     
