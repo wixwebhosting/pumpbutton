@@ -877,10 +877,10 @@
                     type: 'pump',
                     username: username || 'Anonymous'
                 };
-                console.log('Sending pump:', pumpData);
+                console.log('🚀 Sending pump data:', pumpData);
                 ws.send(JSON.stringify(pumpData));
             } else {
-                console.error('WebSocket not connected - pump data will be lost');
+                console.error('❌ WebSocket not connected - pump data will be lost. ReadyState:', ws ? ws.readyState : 'No WebSocket');
             }
         });
 
@@ -890,47 +890,49 @@
         function connectWebSocket() {
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
             const wsUrl = `${protocol}//${window.location.host}`;
+            console.log('Attempting to connect to WebSocket:', wsUrl);
             ws = new WebSocket(wsUrl);
 
             ws.addEventListener('open', () => {
-                console.log('Connected to pump server!');
+                console.log('✅ Connected to pump server!');
                 reconnectAttempts = 0; // Reset reconnection attempts on successful connection
             });
 
             ws.addEventListener('message', (event) => {
                 try {
                     const data = JSON.parse(event.data);
+                    console.log('📨 Received WebSocket message:', data);
 
                     if (data.type === 'update') {
                         if (data.totalPumps !== undefined) {
+                            console.log('🔢 Updating global counter to:', data.totalPumps);
                             globalCounter.textContent = data.totalPumps.toLocaleString();
                         }
                         if (data.leaderboard) {
+                            console.log('🏆 Updating leaderboard:', data.leaderboard);
                             updateLeaderboard(data.leaderboard);
                         }
                     }
                 } catch (error) {
-                    console.error('Error parsing message:', error);
+                    console.error('❌ Error parsing WebSocket message:', error, 'Raw data:', event.data);
                 }
             });
 
-            ws.addEventListener('close', () => {
-                console.log('Disconnected from pump server');
+            ws.addEventListener('close', (event) => {
+                console.log('🔌 WebSocket disconnected. Code:', event.code, 'Reason:', event.reason);
                 if (reconnectAttempts < maxReconnectAttempts) {
                     reconnectAttempts++;
-                    console.log(`Attempting to reconnect (${reconnectAttempts}/${maxReconnectAttempts})...`);
+                    console.log(`🔄 Attempting to reconnect (${reconnectAttempts}/${maxReconnectAttempts})...`);
                     setTimeout(connectWebSocket, 2000 * reconnectAttempts); // Exponential backoff
                 } else {
-                    console.log('Max reconnection attempts reached. Please refresh the page.');
+                    console.log('❌ Max reconnection attempts reached. Please refresh the page.');
                 }
             });
 
             ws.addEventListener('error', (error) => {
-                console.error('WebSocket error:', error);
+                console.error('🚨 WebSocket error:', error);
             });
-        }
-
-        // Initial connection
+        }        // Initial connection
         connectWebSocket();
 
         function updateLeaderboard(leaderboard) {

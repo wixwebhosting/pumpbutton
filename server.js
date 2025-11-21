@@ -16,7 +16,8 @@ let leaderboard = {}; // { username: pumps }
 
 // Broadcast to all connected clients
 function broadcast(data) {
-    wss.clients.forEach((client) => {
+    console.log('📢 Broadcasting to', wss.clients.size, 'clients:', data);
+    wss.clients.forEach(client => {
         if (client.readyState === WebSocket.OPEN) {
             client.send(JSON.stringify(data));
         }
@@ -33,19 +34,22 @@ function getLeaderboard() {
 
 // WebSocket connection handler
 wss.on('connection', (ws) => {
-    console.log('New client connected');
+    console.log('🔗 New client connected. Total clients:', wss.clients.size);
     
     // Send current state to new client
-    ws.send(JSON.stringify({
+    const initialData = {
         type: 'update',
         totalPumps: totalPumps,
         leaderboard: getLeaderboard()
-    }));
+    };
+    console.log('📤 Sending initial state to new client:', initialData);
+    ws.send(JSON.stringify(initialData));
     
     // Handle messages from client
     ws.on('message', (message) => {
         try {
             const data = JSON.parse(message);
+            console.log('📨 Server received message:', data);
             
             if (data.type === 'pump') {
                 // Increment global counter
@@ -58,17 +62,19 @@ wss.on('connection', (ws) => {
                 }
                 leaderboard[username]++;
                 
-                console.log(`💎 PUMP! Total: ${totalPumps} | ${username}: ${leaderboard[username]}`);
+                console.log(`💎 PUMP! Total: ${totalPumps} | ${username}: ${leaderboard[username]} | Broadcasting to ${wss.clients.size} clients`);
                 
                 // Broadcast update to all clients
-                broadcast({
+                const updateData = {
                     type: 'update',
                     totalPumps: totalPumps,
                     leaderboard: getLeaderboard()
-                });
+                };
+                console.log('📡 Broadcasting update:', updateData);
+                broadcast(updateData);
             }
         } catch (error) {
-            console.error('Error processing message:', error);
+            console.error('❌ Error processing message:', error, 'Raw message:', message);
         }
     });
     
