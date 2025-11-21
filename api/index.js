@@ -1,14 +1,23 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 
-// Serve static files
-app.use(express.static(__dirname));
-
 // Serve index.html for root
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    const indexPath = path.join(__dirname, '..', 'index.html');
+    res.sendFile(indexPath);
+});
+
+// Serve pump.png
+app.get('/pump.png', (req, res) => {
+    const imagePath = path.join(__dirname, '..', 'pump.png');
+    if (fs.existsSync(imagePath)) {
+        res.sendFile(imagePath);
+    } else {
+        res.status(404).send('Image not found');
+    }
 });
 
 // In-memory storage (note: this resets on every serverless invocation)
