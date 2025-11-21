@@ -524,7 +524,10 @@
     </div>
 
     <script>
-        const ws = new WebSocket('ws://localhost:3000');
+        // Dynamic WebSocket URL for Railway deployment
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}`;
+        const ws = new WebSocket(wsUrl);
         const pumpButton = document.getElementById('pumpButton');
         const flashText = document.getElementById('flashText');
         const globalCounter = document.getElementById('globalCounter');
@@ -869,7 +872,7 @@
             localStorage.setItem('userPumps', userPumps);
             
             // Send to server
-            if (ws.readyState === WebSocket.OPEN) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
                 const pumpData = {
                     type: 'pump',
                     username: username || 'Anonymous'
@@ -877,37 +880,58 @@
                 console.log('Sending pump:', pumpData);
                 ws.send(JSON.stringify(pumpData));
             } else {
-                console.error('WebSocket not connected');
+                console.error('WebSocket not connected - pump data will be lost');
             }
         });
 
-        ws.addEventListener('open', () => {
-            console.log('Connected to pump server!');
-        });
+        let reconnectAttempts = 0;
+        const maxReconnectAttempts = 5;
 
-        ws.addEventListener('message', (event) => {
-            try {
-                const data = JSON.parse(event.data);
-                
-                if (data.type === 'update') {
-                    if (data.totalPumps !== undefined) {
-                        globalCounter.textContent = data.totalPumps.toLocaleString();
+        function connectWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}`;
+            ws = new WebSocket(wsUrl);
+
+            ws.addEventListener('open', () => {
+                console.log('Connected to pump server!');
+                reconnectAttempts = 0; // Reset reconnection attempts on successful connection
+            });
+
+            ws.addEventListener('message', (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+
+                    if (data.type === 'update') {
+                        if (data.totalPumps !== undefined) {
+                            globalCounter.textContent = data.totalPumps.toLocaleString();
+                        }
+                        if (data.leaderboard) {
+                            updateLeaderboard(data.leaderboard);
+                        }
                     }
-                    if (data.leaderboard) {
-                        updateLeaderboard(data.leaderboard);
-                    }
+                } catch (error) {
+                    console.error('Error parsing message:', error);
                 }
-            } catch (error) {
-                console.error('Error parsing message:', error);
-            }
-        });
+            });
 
-        ws.addEventListener('close', () => {
-            console.log('Disconnected from pump server');
-            setTimeout(() => {
-                window.location.reload();
-            }, 3000);
-        });
+            ws.addEventListener('close', () => {
+                console.log('Disconnected from pump server');
+                if (reconnectAttempts < maxReconnectAttempts) {
+                    reconnectAttempts++;
+                    console.log(`Attempting to reconnect (${reconnectAttempts}/${maxReconnectAttempts})...`);
+                    setTimeout(connectWebSocket, 2000 * reconnectAttempts); // Exponential backoff
+                } else {
+                    console.log('Max reconnection attempts reached. Please refresh the page.');
+                }
+            });
+
+            ws.addEventListener('error', (error) => {
+                console.error('WebSocket error:', error);
+            });
+        }
+
+        // Initial connection
+        connectWebSocket();
 
         function updateLeaderboard(leaderboard) {
             leaderboardList.innerHTML = '';
