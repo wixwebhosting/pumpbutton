@@ -16,8 +16,7 @@ let leaderboard = {}; // { username: pumps }
 
 // Broadcast to all connected clients
 function broadcast(data) {
-    console.log('📢 Broadcasting to', wss.clients.size, 'clients:', data);
-    wss.clients.forEach(client => {
+    wss.clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
             client.send(JSON.stringify(data));
         }
@@ -34,22 +33,19 @@ function getLeaderboard() {
 
 // WebSocket connection handler
 wss.on('connection', (ws) => {
-    console.log('🔗 New client connected. Total clients:', wss.clients.size);
+    console.log('New client connected');
     
     // Send current state to new client
-    const initialData = {
+    ws.send(JSON.stringify({
         type: 'update',
         totalPumps: totalPumps,
         leaderboard: getLeaderboard()
-    };
-    console.log('📤 Sending initial state to new client:', initialData);
-    ws.send(JSON.stringify(initialData));
+    }));
     
     // Handle messages from client
     ws.on('message', (message) => {
         try {
             const data = JSON.parse(message);
-            console.log('📨 Server received message:', data);
             
             if (data.type === 'pump') {
                 // Increment global counter
@@ -62,19 +58,17 @@ wss.on('connection', (ws) => {
                 }
                 leaderboard[username]++;
                 
-                console.log(`💎 PUMP! Total: ${totalPumps} | ${username}: ${leaderboard[username]} | Broadcasting to ${wss.clients.size} clients`);
+                console.log(`💎 PUMP! Total: ${totalPumps} | ${username}: ${leaderboard[username]}`);
                 
                 // Broadcast update to all clients
-                const updateData = {
+                broadcast({
                     type: 'update',
                     totalPumps: totalPumps,
                     leaderboard: getLeaderboard()
-                };
-                console.log('📡 Broadcasting update:', updateData);
-                broadcast(updateData);
+                });
             }
         } catch (error) {
-            console.error('❌ Error processing message:', error, 'Raw message:', message);
+            console.error('Error processing message:', error);
         }
     });
     
@@ -92,6 +86,16 @@ app.get('/api/stats', (req, res) => {
     res.json({
         totalPumps: totalPumps,
         leaderboard: getLeaderboard()
+    });
+});
+
+// Health check endpoint for Railway
+app.get('/health', (req, res) => {
+    res.status(200).json({
+        status: 'healthy',
+        uptime: process.uptime(),
+        totalPumps: totalPumps,
+        activeConnections: wss.clients.size
     });
 });
 
