@@ -531,10 +531,8 @@
     </div>
 
     <script>
-        // Dynamic WebSocket URL based on environment
-        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsHost = window.location.host || 'localhost:3001';
-        const ws = new WebSocket(`${wsProtocol}//${wsHost}`);
+        // Use polling instead of WebSocket for Vercel compatibility
+        let pollInterval = null;
         const pumpButton = document.getElementById('pumpButton');
         const flashText = document.getElementById('flashText');
         const globalCounter = document.getElementById('globalCounter');
@@ -878,46 +876,57 @@
             userCounter.textContent = userPumps.toLocaleString();
             localStorage.setItem('userPumps', userPumps);
             
-            // Send to server
-            if (ws.readyState === WebSocket.OPEN) {
-                const pumpData = {
-                    type: 'pump',
+            // Send to server via API
+            fetch('/api/pump', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
                     username: username || 'Anonymous'
-                };
-                console.log('Sending pump:', pumpData);
-                ws.send(JSON.stringify(pumpData));
-            } else {
-                console.error('WebSocket not connected');
-            }
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.totalPumps !== undefined) {
+                    globalCounter.textContent = data.totalPumps.toLocaleString();
+                }
+                if (data.leaderboard) {
+                    updateLeaderboard(data.leaderboard);
+                }
+            })
+            .catch(error => {
+                console.error('Error sending pump:', error);
+            });
         });
 
-        ws.addEventListener('open', () => {
-            console.log('Connected to pump server!');
-        });
+        // Poll for updates
+        function startPolling() {
+            // Initial fetch
+            fetchStats();
+            
+            // Poll every 2 seconds
+            pollInterval = setInterval(fetchStats, 2000);
+        }
 
-        ws.addEventListener('message', (event) => {
-            try {
-                const data = JSON.parse(event.data);
-                
-                if (data.type === 'update') {
+        function fetchStats() {
+            fetch('/api/stats')
+                .then(res => res.json())
+                .then(data => {
                     if (data.totalPumps !== undefined) {
                         globalCounter.textContent = data.totalPumps.toLocaleString();
                     }
                     if (data.leaderboard) {
                         updateLeaderboard(data.leaderboard);
                     }
-                }
-            } catch (error) {
-                console.error('Error parsing message:', error);
-            }
-        });
+                })
+                .catch(error => {
+                    console.error('Error fetching stats:', error);
+                });
+        }
 
-        ws.addEventListener('close', () => {
-            console.log('Disconnected from pump server');
-            setTimeout(() => {
-                window.location.reload();
-            }, 3000);
-        });
+        // Start polling when page loads
+        startPolling();
 
         function updateLeaderboard(leaderboard) {
             leaderboardList.innerHTML = '';
