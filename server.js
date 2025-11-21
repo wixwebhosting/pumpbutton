@@ -101,14 +101,10 @@ app.post('/api/reset', (req, res) => {
     res.json({ message: 'Reset successful' });
 });
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 
-// For Vercel serverless, export the app
-if (process.env.VERCEL) {
-    module.exports = app;
-} else {
-    server.listen(PORT, () => {
-        console.log(`
+server.listen(PORT, () => {
+    console.log(`
     🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀
     
     PUMP BUTTON SERVER RUNNING!
@@ -120,8 +116,7 @@ if (process.env.VERCEL) {
     
     🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀
     `);
-    });
-}
+});
 
 // Save data periodically (every 5 minutes)
 setInterval(() => {

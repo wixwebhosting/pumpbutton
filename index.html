@@ -54,6 +54,30 @@
             100% { background-position: 0% 50%; }
         }
 
+        .x-logo-link {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .x-logo-link:hover {
+            transform: scale(1.1);
+        }
+
+        .x-logo {
+            width: 40px;
+            height: 40px;
+            fill: #fff;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+            transition: filter 0.3s ease;
+        }
+
+        .x-logo-link:hover .x-logo {
+            filter: drop-shadow(0 0 20px rgba(0, 255, 136, 0.8));
+        }
+
         .main-container {
             max-width: 1400px;
             margin: 0 auto;
@@ -421,36 +445,6 @@
             cursor: not-allowed;
         }
 
-        .x-logo {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 9999;
-            width: 50px;
-            height: 50px;
-            background: rgba(0, 0, 0, 0.8);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            cursor: pointer;
-        }
-
-        .x-logo:hover {
-            transform: scale(1.1);
-            background: rgba(0, 0, 0, 0.95);
-            border-color: #00ff88;
-            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
-        }
-
-        .x-logo svg {
-            width: 30px;
-            height: 30px;
-            fill: #fff;
-        }
-
         @media (max-width: 768px) {
             h1 { font-size: 2em; }
             .pump-button { width: 250px; height: 250px; font-size: 2em; }
@@ -458,12 +452,17 @@
             .stats { gap: 20px; }
             .modal-content { padding: 30px 40px; }
             .modal-content h2 { font-size: 1.8em; }
-            .x-logo { width: 40px; height: 40px; top: 15px; left: 15px; }
-            .x-logo svg { width: 24px; height: 24px; }
         }
     </style>
 </head>
 <body>
+    <!-- X Logo Link -->
+    <a href="https://x.com/thepumpbutton" target="_blank" rel="noopener noreferrer" class="x-logo-link">
+        <svg class="x-logo" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+        </svg>
+    </a>
+
     <!-- Username Modal -->
     <div class="username-modal" id="usernameModal">
         <div class="modal-content">
@@ -480,12 +479,6 @@
             <button id="startPumpingBtn" disabled>START PUMPING</button>
         </div>
     </div>
-
-    <a href="https://x.com/thepumpbutton" target="_blank" rel="noopener noreferrer" class="x-logo">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
-        </svg>
-    </a>
 
     <div class="particles" id="particles"></div>
     
@@ -531,8 +524,7 @@
     </div>
 
     <script>
-        // Use polling instead of WebSocket for Vercel compatibility
-        let pollInterval = null;
+        const ws = new WebSocket('ws://localhost:3000');
         const pumpButton = document.getElementById('pumpButton');
         const flashText = document.getElementById('flashText');
         const globalCounter = document.getElementById('globalCounter');
@@ -876,57 +868,46 @@
             userCounter.textContent = userPumps.toLocaleString();
             localStorage.setItem('userPumps', userPumps);
             
-            // Send to server via API
-            fetch('/api/pump', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
+            // Send to server
+            if (ws.readyState === WebSocket.OPEN) {
+                const pumpData = {
+                    type: 'pump',
                     username: username || 'Anonymous'
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.totalPumps !== undefined) {
-                    globalCounter.textContent = data.totalPumps.toLocaleString();
-                }
-                if (data.leaderboard) {
-                    updateLeaderboard(data.leaderboard);
-                }
-            })
-            .catch(error => {
-                console.error('Error sending pump:', error);
-            });
+                };
+                console.log('Sending pump:', pumpData);
+                ws.send(JSON.stringify(pumpData));
+            } else {
+                console.error('WebSocket not connected');
+            }
         });
 
-        // Poll for updates
-        function startPolling() {
-            // Initial fetch
-            fetchStats();
-            
-            // Poll every 2 seconds
-            pollInterval = setInterval(fetchStats, 2000);
-        }
+        ws.addEventListener('open', () => {
+            console.log('Connected to pump server!');
+        });
 
-        function fetchStats() {
-            fetch('/api/stats')
-                .then(res => res.json())
-                .then(data => {
+        ws.addEventListener('message', (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                
+                if (data.type === 'update') {
                     if (data.totalPumps !== undefined) {
                         globalCounter.textContent = data.totalPumps.toLocaleString();
                     }
                     if (data.leaderboard) {
                         updateLeaderboard(data.leaderboard);
                     }
-                })
-                .catch(error => {
-                    console.error('Error fetching stats:', error);
-                });
-        }
+                }
+            } catch (error) {
+                console.error('Error parsing message:', error);
+            }
+        });
 
-        // Start polling when page loads
-        startPolling();
+        ws.addEventListener('close', () => {
+            console.log('Disconnected from pump server');
+            setTimeout(() => {
+                window.location.reload();
+            }, 3000);
+        });
 
         function updateLeaderboard(leaderboard) {
             leaderboardList.innerHTML = '';

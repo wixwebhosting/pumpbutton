@@ -12,7 +12,7 @@ The most important button on the internet. Press it to pump hopium into the mark
 - 🌐 **Real-time Sync** - WebSocket-powered live updates
 - 💾 **Persistent Stats** - Your pumps are saved locally
 
-## Installation
+## Installation & Local Development
 
 1. Install Node.js dependencies:
 ```bash
@@ -29,12 +29,22 @@ npm start
 http://localhost:3000
 ```
 
-## For Development
+## Deployment to Railway
 
-Run with auto-reload:
-```bash
-npm run dev
-```
+1. **Connect to Railway:**
+   - Go to [railway.app](https://railway.app)
+   - Sign in with your GitHub account
+   - Click "New Project"
+   - Choose "Deploy from GitHub repo"
+
+2. **Configure:**
+   - Railway will auto-detect the Node.js project
+   - Set environment variables if needed (none required for basic functionality)
+   - Deploy!
+
+3. **Full WebSocket Support:**
+   - Railway supports persistent WebSocket connections
+   - All real-time features work perfectly
 
 ## How to Play
 
@@ -97,4 +107,5 @@ PORT=8080 npm start
 
 ## License
 
-MIT - Pump it up! 💎🚀
+MIT - Pump it up! 💎
+🚀
