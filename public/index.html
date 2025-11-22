@@ -15,27 +15,20 @@
 
     <header class="hero">
         <div>
-            <p class="eyebrow">THE TRENCHES • LIVE VOICE OPS</p>
-            <h1>Spin up a voice trench.<br> Rally the memecoin war room.</h1>
-            <p class="lede">Hyper-fluid voice hubs for the degen underground. Claim a trench, guard it with your IP, and pull the squad in with one tap.</p>
-            <div class="hero-actions">
-                <button class="primary" id="openCreate">
-                    <span>Launch My Trench</span>
-                    <small>1 trench per IP • stay frosty</small>
-                </button>
-                <button class="ghost" id="refreshRooms">Scan Active Trenches</button>
-            </div>
+            <p class="eyebrow">THE TRENCHES • LIVE TRENCH VC</p>
+            <h1>Create a trenching VC.<br> Make friends. Connect.</h1>
+            <p class="lede">Voice chats for crypto degens. Create a trench VC in one tap and connect with others in the space.</p>
         </div>
         <div class="hero-card">
             <div class="stat">
-                <p>Live Trenches</p>
+                <p>Voice Rooms</p>
                 <strong id="liveCount">0</strong>
             </div>
             <div class="stat">
-                <p>Active Degens</p>
+                <p>Active Trenchers</p>
                 <strong id="popCount">0</strong>
             </div>
-            <div class="pulse">Signal Locked</div>
+            <div class="pulse">Connected</div>
         </div>
     </header>
 
@@ -44,62 +37,81 @@
             <header>
                 <div>
                     <p class="eyebrow">COMMAND DESK</p>
-                    <h2>Create &amp; broadcast your trench</h2>
+                    <h2>Create your own Trench VC</h2>
                 </div>
                 <span class="status" id="hostStatus">Idle</span>
             </header>
             <div class="panel-body">
                 <label class="field">
-                    <span>Trench tagline</span>
-                    <input type="text" id="trenchTopic" maxlength="60" placeholder="Example: SOL whales regroup • stealth raid in 5" />
-                </label>
-                <div class="controls">
-                    <button class="primary" id="createTrench">Ignite Voice Trench</button>
-                    <button class="danger" id="endTrench" disabled>End Transmission</button>
-                </div>
-                <p class="hint">We guard each trench by IP. One commander, one voice nest. When you dip, the trench implodes.</p>
+                    <span>Enter VC Name</span>
+                    <input type="text" id="trenchTopic" maxlength="60" placeholder="" />
+                    </label>
+                    <div class="controls">
+                        <button class="primary" id="createTrench">Create Trench VC</button>
+                    </div>
             </div>
         </section>
 
-        <section class="panel">
+        <section class="panel" id="activeTrenchesPanel">
             <header>
                 <div>
-                    <p class="eyebrow">ACTIVE TRENCHES</p>
-                    <h2>Drop into live voice ops</h2>
+                        <p class="eyebrow">ACTIVE TRENCHES</p>
+                        <h2>Drop into live trench VC</h2>
                 </div>
                 <span class="status" id="roomStatus">Listening</span>
             </header>
             <div class="room-grid" id="roomGrid">
-                <p class="empty">No trenches on radar. Spin one up.</p>
+                <p class="empty">No trenches active. Spin one up.</p>
             </div>
         </section>
 
-        <section class="panel">
+        <section class="panel" id="voicePanel">
             <header>
                 <div>
-                    <p class="eyebrow">VOICE LINK</p>
-                    <h2>Current transmission</h2>
+                    <h2>Current voice chat</h2>
                 </div>
                 <span class="status" id="callStatus">Disconnected</span>
             </header>
             <div class="panel-body live">
-                <div class="audio-feed">
-                    <p class="label">Squad Audio</p>
-                    <div id="audioStreams"></div>
+                <div class="participant-roster">
+                    <p class="label">Party Roster</p>
+                    <div id="participantList" class="roster-list">
+                        <p class="empty">No active trench VC.</p>
+                    </div>
                 </div>
-                <div class="call-actions">
-                    <button class="ghost" id="leaveRoom" disabled>Leave Trench</button>
-                </div>
+                    <div class="call-actions">
+                        <button class="danger" id="leaveRoom" disabled>Leave Trench</button>
+                    </div>
             </div>
         </section>
     </main>
+
+    <div id="audioStreams" class="sr-audio" aria-hidden="true"></div>
+
+    <aside class="profile-panel" id="profilePanel" aria-hidden="true">
+        <div class="profile-card">
+            <button class="close-profile" id="closeProfile" type="button" aria-label="Close profile">X</button>
+            <div class="profile-avatar" id="profileAvatar">👤</div>
+            <div class="profile-meta">
+                <p class="eyebrow">PROFILE</p>
+                <h3 id="profileName">Select a member</h3>
+                <p class="hint" id="profileTime">Total VC: 0s</p>
+                <p class="hint" id="profileDiscord">Discord: Not linked</p>
+            </div>
+        </div>
+    </aside>
 
     <div class="gate" id="gate">
         <div class="gate-card">
             <p class="eyebrow">VERIFY YOUR HANDLE</p>
             <h2>Who&apos;s entering the fire?</h2>
-            <input type="text" id="usernameInput" maxlength="16" placeholder="Enter callsign" />
-            <p class="hint" id="nameHint">3-16 characters. No slurs, no cowards.</p>
+            <div class="identity-stack">
+                <input type="text" id="usernameInput" maxlength="16" placeholder="Enter callsign" />
+                <p class="hint" id="nameHint">3-16 characters. No slurs, no cowards.</p>
+                <button class="discord-connect" id="discordConnect" type="button">
+                    <span>Connect Discord</span>
+                </button>
+            </div>
             <button class="primary" id="enterBtn" disabled>Enter The Trenches</button>
         </div>
     </div>
