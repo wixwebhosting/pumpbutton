@@ -1,20 +1,18 @@
 {
-  "name": "pump-button",
+  "name": "trench-voice",
   "version": "1.0.0",
-  "description": "The most important button on the internet - PUMP IT!",
+  "description": "Voice trenches for the memecoin space",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
-  "keywords": ["pump", "button", "websocket", "real-time"],
-  "author": "",
-  "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2",
-    "ws": "^8.14.2"
+    "express": "^4.19.2",
+    "uuid": "^11.0.3",
+    "ws": "^8.18.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "nodemon": "^3.1.0"
   }
 }

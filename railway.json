@@ -3,6 +3,9 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
+    "numReplicas": 1,
+    "regions": ["us-west"],
+    "restartPolicyType": "ON_FAILURE",
     "startCommand": "npm start"
   }
 }

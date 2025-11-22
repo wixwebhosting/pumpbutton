@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Trenches Voice Grid</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="stars"></div>
+    <div class="stars-layer"></div>
+
+    <header class="hero">
+        <div>
+            <p class="eyebrow">THE TRENCHES • LIVE VOICE OPS</p>
+            <h1>Spin up a voice trench.<br> Rally the memecoin war room.</h1>
+            <p class="lede">Hyper-fluid voice hubs for the degen underground. Claim a trench, guard it with your IP, and pull the squad in with one tap.</p>
+            <div class="hero-actions">
+                <button class="primary" id="openCreate">
+                    <span>Launch My Trench</span>
+                    <small>1 trench per IP • stay frosty</small>
+                </button>
+                <button class="ghost" id="refreshRooms">Scan Active Trenches</button>
+            </div>
+        </div>
+        <div class="hero-card">
+            <div class="stat">
+                <p>Live Trenches</p>
+                <strong id="liveCount">0</strong>
+            </div>
+            <div class="stat">
+                <p>Active Degens</p>
+                <strong id="popCount">0</strong>
+            </div>
+            <div class="pulse">Signal Locked</div>
+        </div>
+    </header>
+
+    <main>
+        <section class="panel" id="commandPanel">
+            <header>
+                <div>
+                    <p class="eyebrow">COMMAND DESK</p>
+                    <h2>Create &amp; broadcast your trench</h2>
+                </div>
+                <span class="status" id="hostStatus">Idle</span>
+            </header>
+            <div class="panel-body">
+                <label class="field">
+                    <span>Trench tagline</span>
+                    <input type="text" id="trenchTopic" maxlength="60" placeholder="Example: SOL whales regroup • stealth raid in 5" />
+                </label>
+                <div class="controls">
+                    <button class="primary" id="createTrench">Ignite Voice Trench</button>
+                    <button class="danger" id="endTrench" disabled>End Transmission</button>
+                </div>
+                <p class="hint">We guard each trench by IP. One commander, one voice nest. When you dip, the trench implodes.</p>
+            </div>
+        </section>
+
+        <section class="panel">
+            <header>
+                <div>
+                    <p class="eyebrow">ACTIVE TRENCHES</p>
+                    <h2>Drop into live voice ops</h2>
+                </div>
+                <span class="status" id="roomStatus">Listening</span>
+            </header>
+            <div class="room-grid" id="roomGrid">
+                <p class="empty">No trenches on radar. Spin one up.</p>
+            </div>
+        </section>
+
+        <section class="panel">
+            <header>
+                <div>
+                    <p class="eyebrow">VOICE LINK</p>
+                    <h2>Current transmission</h2>
+                </div>
+                <span class="status" id="callStatus">Disconnected</span>
+            </header>
+            <div class="panel-body live">
+                <div class="audio-feed">
+                    <p class="label">Squad Audio</p>
+                    <div id="audioStreams"></div>
+                </div>
+                <div class="call-actions">
+                    <button class="ghost" id="leaveRoom" disabled>Leave Trench</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="gate" id="gate">
+        <div class="gate-card">
+            <p class="eyebrow">VERIFY YOUR HANDLE</p>
+            <h2>Who&apos;s entering the fire?</h2>
+            <input type="text" id="usernameInput" maxlength="16" placeholder="Enter callsign" />
+            <p class="hint" id="nameHint">3-16 characters. No slurs, no cowards.</p>
+            <button class="primary" id="enterBtn" disabled>Enter The Trenches</button>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/simple-peer@9.11.1/simplepeer.min.js"></script>
+    <script src="app.js" type="module"></script>
+</body>
+</html>
